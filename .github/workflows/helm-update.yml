@@ -1,0 +1,33 @@
+name: Helm Chart Update
+
+on:
+  workflow_run:
+    workflows: ["Docker Build & Push"]
+    types:
+      - completed
+
+jobs:
+  update-helm:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Install yq (YAML CLI)
+        run: |
+          sudo apt-get update && sudo apt-get install -y yq
+
+      - name: Update Helm chart version
+        run: |
+          yq e -i '.appVersion = "1.0"' argo/Chart.yaml
+          yq e -i '.version = "0.1.${{ github.run_number }}"' argo/Chart.yaml
+
+      - name: Commit and Push Helm chart changes
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git add argo/Chart.yaml
+          git commit -m "Update Helm chart version to 0.1.${{ github.run_number }}"
+          git push
