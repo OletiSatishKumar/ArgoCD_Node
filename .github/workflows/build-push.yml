@@ -6,7 +6,7 @@ on:
       - master
 
 env:
-  IMAGE_NAME: your-dockerhub-username/hello-argocd
+  IMAGE_NAME: satishosk/hello-argocd
   IMAGE_TAG: latest
 
 jobs:
